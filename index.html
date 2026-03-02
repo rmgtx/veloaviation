@@ -182,6 +182,24 @@
       position: absolute; top: 2px; left: 2px; transition: transform 0.3s, background 0.3s;
     }
     .dark .theme-toggle .dot { transform: translateX(20px); background: #f59e0b; }
+
+    /* ---- MOBILE RESPONSIVE ---- */
+    @media (max-width: 640px) {
+      .stat-card { padding: 10px 12px; }
+      .stat-card .w-9 { width: 28px; height: 28px; min-width: 28px; }
+      .stat-card .w-9 i { font-size: 0.75rem; }
+      .stat-card .text-xl { font-size: 1rem; }
+      .stat-card .text-\[0\.65rem\] { font-size: 0.55rem; }
+
+      .filter-btn { font-size: 0.7rem; padding: 5px 8px; }
+      .filter-btn i { display: none; }
+
+      .btn { font-size: 0.75rem; padding: 7px 12px; gap: 4px; }
+
+      .price-input { width: 110px; font-size: 0.9rem; padding: 5px 8px 5px 22px; }
+
+      .card .detail-expand .grid { grid-template-columns: 1fr !important; }
+    }
   </style>
 </head>
 <body class="min-h-screen">
@@ -190,38 +208,38 @@
 
   <!-- ========== HEADER ========== -->
   <header class="sticky top-0 z-40 border-b" style="background: var(--bg-card); border-color: var(--border);">
-    <div class="max-w-6xl mx-auto px-5 h-14 flex items-center gap-4">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
-          <i class="ph-bold ph-airplane-tilt text-sm text-white"></i>
+    <div class="max-w-6xl mx-auto px-4 sm:px-5 h-12 sm:h-14 flex items-center gap-3 sm:gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500 flex items-center justify-center flex-shrink-0">
+          <i class="ph-bold ph-airplane-tilt text-xs sm:text-sm text-white"></i>
         </div>
-        <div>
-          <span class="text-sm font-800 tracking-tight" style="color: var(--text-1);">Velo Aviation</span>
-          <span class="text-xs font-500 ml-1.5" style="color: var(--text-3);">Email Triage Hub</span>
+        <div class="min-w-0">
+          <span class="text-xs sm:text-sm font-800 tracking-tight" style="color: var(--text-1);">Velo Aviation</span>
+          <span class="text-[0.65rem] sm:text-xs font-500 ml-1 hidden sm:inline" style="color: var(--text-3);">Email Triage Hub</span>
         </div>
       </div>
       <div class="flex-1"></div>
-      <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2">
-          <i class="ph ph-sun text-sm" style="color: var(--text-3);"></i>
+      <div class="flex items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <i class="ph ph-sun text-xs sm:text-sm" style="color: var(--text-3);"></i>
           <div class="theme-toggle" onclick="toggleTheme()"><div class="dot"></div></div>
-          <i class="ph ph-moon text-sm" style="color: var(--text-3);"></i>
+          <i class="ph ph-moon text-xs sm:text-sm" style="color: var(--text-3);"></i>
         </div>
-        <div style="width:1px; height:16px; background: var(--border);"></div>
-        <span class="text-xs" style="color: var(--text-3);">Mar 2, 2026</span>
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: var(--accent-light); color: var(--accent);">GH</div>
-          <span class="text-xs font-600" style="color: var(--text-2);">Gregg H.</span>
+        <div class="hidden sm:block" style="width:1px; height:16px; background: var(--border);"></div>
+        <span class="text-xs hidden sm:inline" style="color: var(--text-3);">Mar 2, 2026</span>
+        <div class="flex items-center gap-1.5">
+          <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[0.55rem] sm:text-[0.6rem] font-bold flex-shrink-0" style="background: var(--accent-light); color: var(--accent);">GH</div>
+          <span class="text-xs font-600 hidden sm:inline" style="color: var(--text-2);">Gregg H.</span>
         </div>
       </div>
     </div>
   </header>
 
   <!-- ========== MAIN ========== -->
-  <main class="max-w-6xl mx-auto px-5 py-5">
+  <main class="max-w-6xl mx-auto px-3 sm:px-5 py-3 sm:py-5">
 
     <!-- Stats Row -->
-    <div class="flex gap-3 mb-5">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-5">
       <div class="stat-card flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--accent-light);">
           <i class="ph-fill ph-clock text-base" style="color: var(--accent);"></i>
@@ -261,39 +279,41 @@
     </div>
 
     <!-- Progress bar -->
-    <div class="flex items-center gap-3 mb-4">
-      <span class="text-xs font-600" style="color: var(--text-2);" id="progress-label">12 emails remaining</span>
+    <div class="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+      <span class="text-[0.65rem] sm:text-xs font-600 flex-shrink-0" style="color: var(--text-2);" id="progress-label">12 remaining</span>
       <div class="progress-track flex-1"><div class="progress-fill" id="progress-bar" style="width: 66%;"></div></div>
-      <span class="text-xs font-mono" style="color: var(--text-3);" id="progress-count">31/43 processed</span>
+      <span class="text-[0.65rem] sm:text-xs font-mono flex-shrink-0" style="color: var(--text-3);" id="progress-count">31/43</span>
     </div>
 
     <!-- Filters + Search -->
-    <div class="flex items-center gap-2 mb-4">
-      <div class="flex gap-1" style="background: var(--bg-elevated); border-radius: 10px; padding: 3px;">
-        <button onclick="setFilter('quote_required')" class="filter-btn active" data-filter="quote_required">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-3 sm:mb-4">
+      <div class="flex gap-1 overflow-x-auto flex-shrink-0" style="background: var(--bg-elevated); border-radius: 10px; padding: 3px;">
+        <button onclick="setFilter('quote_required')" class="filter-btn active flex-shrink-0" data-filter="quote_required">
           <i class="ph ph-quotes text-xs mr-1"></i>Quotes <span class="ml-1 font-mono text-xs" style="color:var(--accent);" id="fcount-quote">12</span>
         </button>
-        <button onclick="setFilter('auto_yes')" class="filter-btn" data-filter="auto_yes">
+        <button onclick="setFilter('auto_yes')" class="filter-btn flex-shrink-0" data-filter="auto_yes">
           <i class="ph ph-robot text-xs mr-1"></i>Auto Yes <span class="ml-1 font-mono text-xs" id="fcount-yes">18</span>
         </button>
-        <button onclick="setFilter('auto_no')" class="filter-btn" data-filter="auto_no">
+        <button onclick="setFilter('auto_no')" class="filter-btn flex-shrink-0" data-filter="auto_no">
           <i class="ph ph-prohibit text-xs mr-1"></i>Auto No <span class="ml-1 font-mono text-xs" id="fcount-no">13</span>
         </button>
-        <button onclick="setFilter('all')" class="filter-btn" data-filter="all">
+        <button onclick="setFilter('all')" class="filter-btn flex-shrink-0" data-filter="all">
           All <span class="ml-1 font-mono text-xs" id="fcount-all">43</span>
         </button>
       </div>
       <div class="flex-1"></div>
-      <div class="relative">
-        <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-3);"></i>
-        <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search company, part, SKU..."
-          class="pl-8 pr-3 py-1.5 text-xs rounded-lg border" style="background: var(--bg-card); border-color: var(--border); color: var(--text-1); width: 220px;"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-      </div>
-      <div class="flex items-center gap-1 text-xs" style="color: var(--text-3);">
-        <kbd class="kbd">↑↓</kbd> nav
-        <kbd class="kbd ml-1">A</kbd> approve
-        <kbd class="kbd ml-1">R</kbd> reject
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1 sm:flex-none">
+          <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-3);"></i>
+          <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search company, part, SKU..."
+            class="w-full sm:w-[220px] pl-8 pr-3 py-1.5 text-xs rounded-lg border" style="background: var(--bg-card); border-color: var(--border); color: var(--text-1);"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div class="hidden sm:flex items-center gap-1 text-xs flex-shrink-0" style="color: var(--text-3);">
+          <kbd class="kbd">↑↓</kbd> nav
+          <kbd class="kbd ml-1">A</kbd> approve
+          <kbd class="kbd ml-1">R</kbd> reject
+        </div>
       </div>
     </div>
 
@@ -623,93 +643,91 @@ function render() {
          style="${isFocused ? 'ring-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px;' : ''}">
 
       <!-- CARD HEADER -->
-      <div class="px-5 pt-4 pb-3">
-        <div class="flex items-start gap-3">
-          <!-- Left: Company + Part Info -->
+      <div class="px-3 sm:px-5 pt-3 sm:pt-4 pb-2 sm:pb-3">
+        <div class="flex items-start gap-2 sm:gap-3">
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
               <span class="source-badge source-${r.source === 'air_exchange' ? 'ax' : r.source}">${r.source === 'air_exchange' ? 'AX' : r.source === 'ils' ? 'ILS' : 'EMAIL'}</span>
-              <span class="text-sm font-700" style="color: var(--text-1);">${r.company}</span>
-              ${r.urgent ? '<span class="text-[0.6rem] font-700 px-2 py-0.5 rounded-full urgent-pulse" style="background: var(--danger-light); color: var(--danger);">AOG URGENT</span>' : ''}
+              <span class="text-xs sm:text-sm font-700" style="color: var(--text-1);">${r.company}</span>
+              ${r.urgent ? '<span class="text-[0.55rem] sm:text-[0.6rem] font-700 px-1.5 sm:px-2 py-0.5 rounded-full urgent-pulse" style="background: var(--danger-light); color: var(--danger);">AOG</span>' : ''}
             </div>
-            <div class="flex items-center gap-2 text-xs" style="color: var(--text-2);">
+            <div class="flex items-center gap-1 sm:gap-2 text-[0.65rem] sm:text-xs flex-wrap" style="color: var(--text-2);">
               <span class="font-mono font-600" style="color: var(--accent);">${r.partNumber}</span>
-              <span style="color: var(--border-strong);">·</span>
-              <span>${r.description}</span>
+              <span class="hidden sm:inline" style="color: var(--border-strong);">·</span>
+              <span class="hidden sm:inline">${r.description}</span>
               <span style="color: var(--border-strong);">·</span>
               <span>Qty ${r.quantity}</span>
               <span style="color: var(--border-strong);">·</span>
               <span>${r.aircraft}</span>
             </div>
-            <div class="text-[0.7rem] mt-0.5" style="color: var(--text-3);">${r.contact} · ${r.email}</div>
+            <div class="text-[0.6rem] sm:text-[0.7rem] mt-0.5 truncate" style="color: var(--text-3);">${r.contact} <span class="hidden sm:inline">· ${r.email}</span></div>
           </div>
-          <!-- Right: Time + Badge -->
           <div class="flex flex-col items-end gap-1 flex-shrink-0">
-            <span class="text-[0.7rem] font-mono" style="color: var(--text-3);">${r.received}</span>
-            <span class="class-badge class-${isQuote ? 'quote' : isAutoYes ? 'yes' : 'no'}">${isQuote ? 'QUOTE REQ' : isAutoYes ? 'AUTO YES' : 'AUTO NO'}</span>
+            <span class="text-[0.6rem] sm:text-[0.7rem] font-mono" style="color: var(--text-3);">${r.received}</span>
+            <span class="class-badge class-${isQuote ? 'quote' : isAutoYes ? 'yes' : 'no'}">${isQuote ? 'QUOTE' : isAutoYes ? 'AUTO YES' : 'AUTO NO'}</span>
           </div>
         </div>
       </div>
 
       <!-- AI SUGGESTION BAND -->
-      <div class="px-5 py-3 border-t" style="background: ${isQuote ? 'var(--bg-suggestion)' : isAutoYes ? 'var(--bg-auto-yes)' : 'var(--bg-auto-no)'}; border-color: var(--border);">
+      <div class="px-3 sm:px-5 py-2.5 sm:py-3 border-t" style="background: ${isQuote ? 'var(--bg-suggestion)' : isAutoYes ? 'var(--bg-auto-yes)' : 'var(--bg-auto-no)'}; border-color: var(--border);">
         ${isQuote ? `
           <!-- QUOTE SUGGESTION -->
-          <div class="flex items-center gap-2 mb-2">
-            <i class="ph-fill ph-sparkle text-sm" style="color: var(--accent);"></i>
-            <span class="text-[0.7rem] font-700 uppercase tracking-wide" style="color: var(--accent);">AI Quote Suggestion</span>
-            <span class="text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}% confidence</span>
-            <span class="text-[0.65rem]" style="color: var(--text-3);">${r.inventory} in stock · 3-mo avg $${fmt(Math.round(avgPrice))}</span>
-            <span class="ml-auto">${buildSparkline(r.priceHistory.map(p => p.price))}</span>
+          <div class="flex items-center gap-1.5 sm:gap-2 mb-2 flex-wrap">
+            <i class="ph-fill ph-sparkle text-xs sm:text-sm" style="color: var(--accent);"></i>
+            <span class="text-[0.6rem] sm:text-[0.7rem] font-700 uppercase tracking-wide" style="color: var(--accent);">AI Quote</span>
+            <span class="text-[0.55rem] sm:text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}%</span>
+            <span class="text-[0.55rem] sm:text-[0.65rem]" style="color: var(--text-3);">${r.inventory} in stock · avg $${fmt(Math.round(avgPrice))}</span>
+            <span class="ml-auto hidden sm:inline">${buildSparkline(r.priceHistory.map(p => p.price))}</span>
           </div>
-          <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-              <label class="text-[0.7rem] font-600" style="color: var(--text-2);">Unit Price</label>
+          <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <label class="text-[0.6rem] sm:text-[0.7rem] font-600 hidden sm:inline" style="color: var(--text-2);">Unit Price</label>
               <div class="relative">
-                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono" style="color: var(--text-3);">$</span>
+                <span class="absolute left-2 sm:left-2.5 top-1/2 -translate-y-1/2 text-[0.65rem] sm:text-xs font-mono" style="color: var(--text-3);">$</span>
                 <input type="text" class="price-input" value="${fmt(r.suggestedPrice)}"
                   oninput="updateTotal(${r.id}, this.value)" data-price-input="${r.id}">
               </div>
             </div>
-            <span class="text-sm" style="color: var(--text-3);">× ${r.quantity}</span>
-            <span class="text-sm" style="color: var(--text-3);">=</span>
-            <span class="text-base font-800 font-mono" style="color: var(--success);" data-total="${r.id}">$${fmt(r.suggestedPrice * r.quantity)}</span>
+            <span class="text-xs sm:text-sm" style="color: var(--text-3);">× ${r.quantity}</span>
+            <span class="text-xs sm:text-sm" style="color: var(--text-3);">=</span>
+            <span class="text-sm sm:text-base font-800 font-mono" style="color: var(--success);" data-total="${r.id}">$${fmt(r.suggestedPrice * r.quantity)}</span>
           </div>
         ` : `
           <!-- AUTO RESPONSE SUGGESTION -->
-          <div class="flex items-center gap-2 mb-1.5">
-            <i class="ph-fill ph-robot text-sm" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};"></i>
-            <span class="text-[0.7rem] font-700 uppercase tracking-wide" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};">
-              ${isAutoYes ? 'Auto Response — Availability Confirmed' : 'Auto Response — Not Available'}
+          <div class="flex items-center gap-1.5 sm:gap-2 mb-1.5 flex-wrap">
+            <i class="ph-fill ph-robot text-xs sm:text-sm" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};"></i>
+            <span class="text-[0.6rem] sm:text-[0.7rem] font-700 uppercase tracking-wide" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};">
+              ${isAutoYes ? 'Auto — Available' : 'Auto — Not Available'}
             </span>
-            <span class="text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}% confidence</span>
+            <span class="text-[0.55rem] sm:text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}%</span>
           </div>
-          <div class="text-xs leading-relaxed truncate" style="color: var(--text-2); max-width: 700px;">
+          <div class="text-[0.65rem] sm:text-xs leading-relaxed" style="color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
             "${r.aiResponse.split('\\n').filter(l => l.trim()).slice(1, 3).join(' ').substring(0, 160)}..."
           </div>
         `}
       </div>
 
       <!-- ACTION BAR -->
-      <div class="px-5 py-2.5 flex items-center gap-2 border-t" style="border-color: var(--border);">
+      <div class="px-3 sm:px-5 py-2 sm:py-2.5 flex items-center gap-1.5 sm:gap-2 border-t flex-wrap" style="border-color: var(--border);">
         ${isQuote ? `
-          <button onclick="approveRfq(${r.id})" class="btn btn-approve"><i class="ph-bold ph-check text-sm"></i> Approve & Send Quote</button>
-          <button onclick="declineRfq(${r.id})" class="btn btn-decline"><i class="ph ph-x text-sm"></i> Decline</button>
+          <button onclick="approveRfq(${r.id})" class="btn btn-approve flex-1 sm:flex-none justify-center"><i class="ph-bold ph-check text-sm"></i> <span class="hidden sm:inline">Approve &</span> Send</button>
+          <button onclick="declineRfq(${r.id})" class="btn btn-decline justify-center"><i class="ph ph-x text-sm"></i> <span class="hidden sm:inline">Decline</span></button>
         ` : `
-          <button onclick="approveRfq(${r.id})" class="btn btn-approve"><i class="ph-bold ph-paper-plane-right text-sm"></i> Send Response</button>
-          <button onclick="declineRfq(${r.id})" class="btn btn-decline"><i class="ph ph-x text-sm"></i> Don't Send</button>
+          <button onclick="approveRfq(${r.id})" class="btn btn-approve flex-1 sm:flex-none justify-center"><i class="ph-bold ph-paper-plane-right text-sm"></i> Send</button>
+          <button onclick="declineRfq(${r.id})" class="btn btn-decline justify-center"><i class="ph ph-x text-sm"></i> <span class="hidden sm:inline">Don't Send</span></button>
         `}
-        <button onclick="toggleExpand(${r.id})" class="btn btn-details">
-          <i class="ph ph-caret-${isExpanded ? 'up' : 'down'} text-sm"></i> ${isExpanded ? 'Hide' : 'View'} Details
+        <button onclick="toggleExpand(${r.id})" class="btn btn-details justify-center">
+          <i class="ph ph-caret-${isExpanded ? 'up' : 'down'} text-sm"></i> Details
         </button>
-        <div class="flex-1"></div>
-        <span class="text-[0.65rem]" style="color: var(--text-3);"><kbd class="kbd">A</kbd> approve <kbd class="kbd ml-1">R</kbd> decline</span>
+        <div class="flex-1 hidden sm:block"></div>
+        <span class="text-[0.65rem] hidden sm:inline" style="color: var(--text-3);"><kbd class="kbd">A</kbd> approve <kbd class="kbd ml-1">R</kbd> decline</span>
       </div>
 
       <!-- EXPANDABLE DETAILS -->
       <div class="detail-expand ${isExpanded ? 'open' : ''}">
-        <div class="px-5 py-4 border-t" style="border-color: var(--border); background: var(--bg-elevated);">
-          <div class="grid ${isQuote ? 'grid-cols-2' : 'grid-cols-1'} gap-4">
+        <div class="px-3 sm:px-5 py-3 sm:py-4 border-t" style="border-color: var(--border); background: var(--bg-elevated);">
+          <div class="grid grid-cols-1 ${isQuote ? 'sm:grid-cols-2' : ''} gap-3 sm:gap-4">
             <!-- Original Email -->
             <div class="rounded-lg p-4" style="background: var(--bg-card); border: 1px solid var(--border);">
               <div class="flex items-center gap-2 mb-2">
@@ -832,8 +850,8 @@ function updateStats() {
   const remaining = rfqs.filter(r => !state.processedIds.includes(r.id)).length;
   const total = state.totalEmails;
   const processed = total - remaining;
-  document.getElementById('progress-label').textContent = `${remaining} emails remaining`;
-  document.getElementById('progress-count').textContent = `${processed}/${total} processed`;
+  document.getElementById('progress-label').textContent = `${remaining} remaining`;
+  document.getElementById('progress-count').textContent = `${processed}/${total}`;
   document.getElementById('progress-bar').style.width = `${(processed / total) * 100}%`;
   document.getElementById('queue-badge') && (document.getElementById('queue-badge').textContent = pending);
 }
