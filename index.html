@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velo Aviation — Email Triage Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Figtree', 'system-ui', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+
+    /* ---- THEME VARIABLES ---- */
+    :root {
+      --bg: #f5f7fa;
+      --bg-card: #ffffff;
+      --bg-elevated: #f0f2f5;
+      --bg-suggestion: #fefce8;
+      --bg-auto-yes: #ecfdf5;
+      --bg-auto-no: #fef2f2;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --text-1: #0f172a;
+      --text-2: #475569;
+      --text-3: #94a3b8;
+      --accent: #b45309;
+      --accent-light: #fef3c7;
+      --success: #059669;
+      --success-light: #d1fae5;
+      --success-hover: #047857;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --danger-hover: #b91c1c;
+      --info: #0284c7;
+      --info-light: #e0f2fe;
+      --purple: #7c3aed;
+      --purple-light: #ede9fe;
+    }
+
+    .dark {
+      --bg: #07090d;
+      --bg-card: #0d1117;
+      --bg-elevated: #151b25;
+      --bg-suggestion: #1a1708;
+      --bg-auto-yes: #071a12;
+      --bg-auto-no: #1a0808;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-hover: 0 4px 12px rgba(0,0,0,0.4);
+      --text-1: #e2e8f0;
+      --text-2: #94a3b8;
+      --text-3: #64748b;
+      --accent: #f59e0b;
+      --accent-light: #78350f;
+      --success: #34d399;
+      --success-light: #064e3b;
+      --success-hover: #6ee7b7;
+      --danger: #fb7185;
+      --danger-light: #881337;
+      --danger-hover: #fda4af;
+      --info: #38bdf8;
+      --info-light: #0c4a6e;
+      --purple: #a78bfa;
+      --purple-light: #4c1d95;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: 'Figtree', system-ui, sans-serif;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover { box-shadow: var(--shadow-hover); border-color: var(--border-strong); }
+
+    .source-badge { font-size: 0.6rem; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+    .source-ax { background: #dbeafe; color: #1d4ed8; }
+    .source-ils { background: var(--purple-light); color: var(--purple); }
+    .source-email { background: var(--bg-elevated); color: var(--text-3); }
+    .dark .source-ax { background: #1e3a5f; color: #60a5fa; }
+    .dark .source-ils { background: #3b1f5e; color: #c084fc; }
+    .dark .source-email { background: #1e293b; color: #94a3b8; }
+
+    .class-badge { font-size: 0.6rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; letter-spacing: 0.03em; }
+    .class-quote { background: var(--accent-light); color: var(--accent); }
+    .class-yes { background: var(--success-light); color: var(--success); }
+    .class-no { background: var(--danger-light); color: var(--danger); }
+
+    .btn { font-weight: 600; font-size: 0.8125rem; padding: 8px 18px; border-radius: 8px; transition: all 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; border: none; }
+    .btn-approve { background: var(--success); color: white; }
+    .btn-approve:hover { background: var(--success-hover); box-shadow: 0 2px 8px rgba(5,150,105,0.3); }
+    .btn-decline { background: var(--bg-elevated); color: var(--text-2); border: 1px solid var(--border); }
+    .btn-decline:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+    .btn-details { background: transparent; color: var(--text-3); padding: 8px 12px; }
+    .btn-details:hover { color: var(--text-2); background: var(--bg-elevated); }
+    .btn-edit { background: var(--bg-elevated); color: var(--text-2); border: 1px solid var(--border); }
+    .btn-edit:hover { background: var(--info-light); color: var(--info); border-color: var(--info); }
+
+    .price-input {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600; font-size: 1.05rem;
+      background: var(--bg-elevated); border: 1.5px solid var(--border);
+      border-radius: 8px; padding: 6px 10px 6px 26px;
+      color: var(--text-1); width: 140px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .price-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow);
+      border-radius: 10px; padding: 14px 18px; flex: 1; transition: border-color 0.15s;
+    }
+    .stat-card:hover { border-color: var(--border-strong); }
+
+    @keyframes pulse-urgent { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .urgent-pulse { animation: pulse-urgent 1.5s ease-in-out infinite; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-up { animation: fadeUp 0.25s ease-out; }
+
+    @keyframes cardOut { to { opacity: 0; transform: translateX(40px) scale(0.98); } }
+    .card-out { animation: cardOut 0.3s ease-out forwards; }
+
+    .detail-expand { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 0; opacity: 0; }
+    .detail-expand.open { max-height: 1200px; opacity: 1; }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+      padding: 12px 24px; border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+      z-index: 100; opacity: 0; transition: all 0.3s ease; pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-approve { background: var(--success); color: white; }
+    .toast-decline { background: var(--danger); color: white; }
+
+    .filter-btn {
+      font-size: 0.8125rem; font-weight: 500; padding: 6px 14px; border-radius: 8px;
+      color: var(--text-3); background: transparent; border: 1px solid transparent;
+      transition: all 0.15s; cursor: pointer;
+    }
+    .filter-btn:hover { color: var(--text-2); background: var(--bg-elevated); }
+    .filter-btn.active { color: var(--text-1); background: var(--bg-card); border-color: var(--border); box-shadow: var(--shadow); }
+
+    .progress-track { height: 4px; background: var(--bg-elevated); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--success); border-radius: 2px; transition: width 0.5s ease; }
+
+    .kbd { font-size: 0.6rem; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-family: 'IBM Plex Mono', monospace; color: var(--text-3); }
+
+    .theme-toggle {
+      width: 44px; height: 24px; border-radius: 12px; background: var(--bg-elevated);
+      border: 1px solid var(--border); position: relative; cursor: pointer; transition: background 0.3s;
+    }
+    .theme-toggle .dot {
+      width: 18px; height: 18px; border-radius: 9px; background: var(--text-3);
+      position: absolute; top: 2px; left: 2px; transition: transform 0.3s, background 0.3s;
+    }
+    .dark .theme-toggle .dot { transform: translateX(20px); background: #f59e0b; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div id="toast" class="toast"></div>
+
+  <!-- ========== HEADER ========== -->
+  <header class="sticky top-0 z-40 border-b" style="background: var(--bg-card); border-color: var(--border);">
+    <div class="max-w-6xl mx-auto px-5 h-14 flex items-center gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+          <i class="ph-bold ph-airplane-tilt text-sm text-white"></i>
+        </div>
+        <div>
+          <span class="text-sm font-800 tracking-tight" style="color: var(--text-1);">Velo Aviation</span>
+          <span class="text-xs font-500 ml-1.5" style="color: var(--text-3);">Email Triage Hub</span>
+        </div>
+      </div>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <i class="ph ph-sun text-sm" style="color: var(--text-3);"></i>
+          <div class="theme-toggle" onclick="toggleTheme()"><div class="dot"></div></div>
+          <i class="ph ph-moon text-sm" style="color: var(--text-3);"></i>
+        </div>
+        <div style="width:1px; height:16px; background: var(--border);"></div>
+        <span class="text-xs" style="color: var(--text-3);">Mar 2, 2026</span>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-[0.6rem] font-bold" style="background: var(--accent-light); color: var(--accent);">GH</div>
+          <span class="text-xs font-600" style="color: var(--text-2);">Gregg H.</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main class="max-w-6xl mx-auto px-5 py-5">
+
+    <!-- Stats Row -->
+    <div class="flex gap-3 mb-5">
+      <div class="stat-card flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--accent-light);">
+          <i class="ph-fill ph-clock text-base" style="color: var(--accent);"></i>
+        </div>
+        <div>
+          <div id="stat-pending" class="text-xl font-800 font-mono leading-none" style="color: var(--accent);">12</div>
+          <div class="text-[0.65rem] mt-0.5" style="color: var(--text-3);">Needs Review</div>
+        </div>
+      </div>
+      <div class="stat-card flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--success-light);">
+          <i class="ph-fill ph-check-circle text-base" style="color: var(--success);"></i>
+        </div>
+        <div>
+          <div id="stat-sent" class="text-xl font-800 font-mono leading-none" style="color: var(--success);">23</div>
+          <div class="text-[0.65rem] mt-0.5" style="color: var(--text-3);">Sent Today</div>
+        </div>
+      </div>
+      <div class="stat-card flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--info-light);">
+          <i class="ph-fill ph-robot text-base" style="color: var(--info);"></i>
+        </div>
+        <div>
+          <div class="text-xl font-800 font-mono leading-none" style="color: var(--info);">31</div>
+          <div class="text-[0.65rem] mt-0.5" style="color: var(--text-3);">Auto-Handled</div>
+        </div>
+      </div>
+      <div class="stat-card flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: var(--bg-elevated);">
+          <i class="ph-fill ph-timer text-base" style="color: var(--text-3);"></i>
+        </div>
+        <div>
+          <div class="text-xl font-800 font-mono leading-none" style="color: var(--text-2);">38<span class="text-xs ml-0.5" style="color:var(--text-3);">s</span></div>
+          <div class="text-[0.65rem] mt-0.5" style="color: var(--text-3);">Avg Response</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-xs font-600" style="color: var(--text-2);" id="progress-label">12 emails remaining</span>
+      <div class="progress-track flex-1"><div class="progress-fill" id="progress-bar" style="width: 66%;"></div></div>
+      <span class="text-xs font-mono" style="color: var(--text-3);" id="progress-count">31/43 processed</span>
+    </div>
+
+    <!-- Filters + Search -->
+    <div class="flex items-center gap-2 mb-4">
+      <div class="flex gap-1" style="background: var(--bg-elevated); border-radius: 10px; padding: 3px;">
+        <button onclick="setFilter('quote_required')" class="filter-btn active" data-filter="quote_required">
+          <i class="ph ph-quotes text-xs mr-1"></i>Quotes <span class="ml-1 font-mono text-xs" style="color:var(--accent);" id="fcount-quote">12</span>
+        </button>
+        <button onclick="setFilter('auto_yes')" class="filter-btn" data-filter="auto_yes">
+          <i class="ph ph-robot text-xs mr-1"></i>Auto Yes <span class="ml-1 font-mono text-xs" id="fcount-yes">18</span>
+        </button>
+        <button onclick="setFilter('auto_no')" class="filter-btn" data-filter="auto_no">
+          <i class="ph ph-prohibit text-xs mr-1"></i>Auto No <span class="ml-1 font-mono text-xs" id="fcount-no">13</span>
+        </button>
+        <button onclick="setFilter('all')" class="filter-btn" data-filter="all">
+          All <span class="ml-1 font-mono text-xs" id="fcount-all">43</span>
+        </button>
+      </div>
+      <div class="flex-1"></div>
+      <div class="relative">
+        <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-sm" style="color: var(--text-3);"></i>
+        <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search company, part, SKU..."
+          class="pl-8 pr-3 py-1.5 text-xs rounded-lg border" style="background: var(--bg-card); border-color: var(--border); color: var(--text-1); width: 220px;"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div class="flex items-center gap-1 text-xs" style="color: var(--text-3);">
+        <kbd class="kbd">↑↓</kbd> nav
+        <kbd class="kbd ml-1">A</kbd> approve
+        <kbd class="kbd ml-1">R</kbd> reject
+      </div>
+    </div>
+
+    <!-- Card List -->
+    <div id="card-list" class="space-y-3">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20" style="color: var(--text-3);">
+      <i class="ph ph-checks text-5xl mb-3"></i>
+      <span class="text-sm font-600">All caught up!</span>
+      <span class="text-xs mt-1">No emails need your attention right now.</span>
+    </div>
+
+  </main>
+
+<script>
+// ====================================================================
+// MOCK DATA
+// ====================================================================
+const rfqs = [
+  {
+    id: 1, company: 'Southwest Airlines', contact: 'Mike Torres', email: 'mtorres@southwest.com',
+    partNumber: 'GTCP131-9B', description: 'Auxiliary Power Unit (Honeywell)', condition: 'Serviceable / OH',
+    quantity: 2, source: 'air_exchange', classification: 'quote_required', urgent: true,
+    received: '8:12 AM', aircraft: 'B737-800',
+    emailBody: `Dear Velo Aviation,\n\nWe are requesting a quote for the following:\n\nPart Number: GTCP131-9B\nDescription: Auxiliary Power Unit — Honeywell\nCondition: Serviceable / Overhauled\nQuantity: 2 ea.\nAircraft Application: Boeing 737-800\n\nPlease provide pricing and availability at your earliest convenience. We have a maintenance window opening March 15th and need units on-site by March 12th.\n\nBest regards,\nMike Torres\nSouthwest Airlines Procurement\n+1 (214) 555-0147`,
+    priceHistory: [
+      { date: 'Feb 18', customer: 'Delta Air Lines', qty: 1, price: 142000 },
+      { date: 'Feb 3', customer: 'United Airlines', qty: 2, price: 138500 },
+      { date: 'Jan 21', customer: 'Alaska Airlines', qty: 1, price: 145000 },
+      { date: 'Jan 8', customer: 'JetBlue Airways', qty: 3, price: 136000 },
+      { date: 'Dec 14', customer: 'Spirit Airlines', qty: 1, price: 141000 },
+    ],
+    suggestedPrice: 140500, confidence: 87, inventory: 4,
+    aiResponse: `Hi Mike,\n\nThank you for reaching out. We have 4 units of the GTCP131-9B (Honeywell APU) available in Serviceable/OH condition.\n\nWe're pleased to offer the following:\n\n  Part Number: GTCP131-9B\n  Condition: Serviceable / Overhauled\n  Quantity: 2 ea.\n  Unit Price: $140,500\n  Total: $281,000\n\nQuotation valid for 30 days. Estimated lead time: 3–5 business days from PO receipt. Full trace documentation and 8130-3 included.\n\nPlease let me know if you'd like to proceed.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 2, company: 'Delta Air Lines', contact: 'Sarah Chen', email: 'schen@delta.com',
+    partNumber: '65C-29277-61', description: 'Main Landing Gear Actuator', condition: 'Overhauled',
+    quantity: 4, source: 'ils', classification: 'quote_required', urgent: false,
+    received: '8:34 AM', aircraft: 'A320',
+    emailBody: `Hello,\n\nDelta TechOps is requesting pricing and lead time for:\n\nP/N: 65C-29277-61\nDesc: Main Landing Gear Actuator\nCond: OH\nQty: 4\nA/C: Airbus A320-200\n\nPlease advise on availability.\n\nThank you,\nSarah Chen\nDelta TechOps Procurement`,
+    priceHistory: [
+      { date: 'Feb 22', customer: 'American Airlines', qty: 2, price: 24800 },
+      { date: 'Feb 9', customer: 'Frontier Airlines', qty: 1, price: 26200 },
+      { date: 'Jan 28', customer: 'Republic Airways', qty: 4, price: 23500 },
+      { date: 'Jan 14', customer: 'SkyWest Airlines', qty: 2, price: 25100 },
+      { date: 'Dec 30', customer: 'Envoy Air', qty: 3, price: 24200 },
+    ],
+    suggestedPrice: 24760, confidence: 92, inventory: 11,
+    aiResponse: `Hi Sarah,\n\nThank you for the inquiry. We have 11 units of P/N 65C-29277-61 (Main Landing Gear Actuator) in stock, OH condition.\n\n  Part Number: 65C-29277-61\n  Condition: Overhauled\n  Quantity: 4 ea.\n  Unit Price: $24,760\n  Total: $99,040\n\nQuotation valid for 30 days. Lead time: 2–3 business days. Trace docs and 8130-3 included.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 3, company: 'JetBlue Airways', contact: 'Tom Reeves', email: 'treeves@jetblue.com',
+    partNumber: '622-8990-005', description: 'ADF Receiver (Collins)', condition: 'As Removed',
+    quantity: 1, source: 'email', classification: 'quote_required', urgent: false,
+    received: '9:01 AM', aircraft: 'A321neo',
+    emailBody: `Hi Velo team,\n\nCould you please quote:\n\nP/N: 622-8990-005\nDescription: ADF Receiver — Collins\nCondition: AR (As Removed)\nQty: 1\nAircraft: A321neo\n\nWe need this as an AOG spare if possible.\n\nThanks,\nTom Reeves\nJetBlue Technical Procurement`,
+    priceHistory: [
+      { date: 'Feb 20', customer: 'Mesa Airlines', qty: 2, price: 4800 },
+      { date: 'Feb 1', customer: 'GoJet Airlines', qty: 1, price: 5200 },
+      { date: 'Jan 17', customer: 'PSA Airlines', qty: 1, price: 4600 },
+      { date: 'Jan 3', customer: 'United Airlines', qty: 3, price: 4900 },
+    ],
+    suggestedPrice: 4875, confidence: 78, inventory: 3,
+    aiResponse: `Hi Tom,\n\nThanks for reaching out. We have 3 units of P/N 622-8990-005 (Collins ADF Receiver) available in AR condition.\n\n  Part Number: 622-8990-005\n  Condition: As Removed\n  Quantity: 1\n  Unit Price: $4,875\n\nLead time: Available immediately. Happy to expedite for AOG.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 4, company: 'United Airlines', contact: 'James Park', email: 'jpark@united.com',
+    partNumber: '3074082-3', description: 'Air Cycle Machine (Hamilton Sundstrand)', condition: 'Serviceable',
+    quantity: 3, source: 'air_exchange', classification: 'quote_required', urgent: false,
+    received: '9:18 AM', aircraft: 'B757-200',
+    emailBody: `Velo Aviation,\n\nRFQ for:\n\nP/N: 3074082-3\nDesc: Air Cycle Machine — Hamilton Sundstrand\nCond: SV\nQty: 3\nA/C: B757-200\n\nRequire quote with lead time and trace documentation.\n\nJames Park\nUnited Airlines Component Procurement`,
+    priceHistory: [
+      { date: 'Feb 15', customer: 'Hawaiian Airlines', qty: 1, price: 31200 },
+      { date: 'Feb 2', customer: 'Allegiant Air', qty: 2, price: 29800 },
+      { date: 'Jan 19', customer: 'Southwest Airlines', qty: 1, price: 32500 },
+      { date: 'Jan 5', customer: 'Delta Air Lines', qty: 2, price: 30100 },
+      { date: 'Dec 22', customer: 'Alaska Airlines', qty: 1, price: 31800 },
+    ],
+    suggestedPrice: 31080, confidence: 90, inventory: 6,
+    aiResponse: `Hi James,\n\nWe have 6 units of P/N 3074082-3 (Air Cycle Machine) available, SV condition.\n\n  Part Number: 3074082-3\n  Condition: Serviceable\n  Quantity: 3 ea.\n  Unit Price: $31,080\n  Total: $93,240\n\nFull trace docs included. Lead time: 3–5 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 5, company: 'Spirit Airlines', contact: 'Carlos Mendes', email: 'cmendes@spirit.com',
+    partNumber: 'CFM56-7B24', description: 'Turbofan Engine (CFM International)', condition: 'Serviceable',
+    quantity: 1, source: 'air_exchange', classification: 'quote_required', urgent: true,
+    received: '10:02 AM', aircraft: 'B737-800',
+    emailBody: `URGENT — AOG SITUATION\n\nVelo Aviation,\n\nWe have an AOG aircraft at FLL requiring immediate engine replacement.\n\nP/N: CFM56-7B24\nDesc: Turbofan Engine — CFM International\nCond: Serviceable with green-time remaining\nQty: 1\nA/C: B737-800 (reg: N637NK)\n\nPlease respond ASAP.\n\nCarlos Mendes\nSpirit Airlines AOG Desk\n+1 (954) 555-0188`,
+    priceHistory: [
+      { date: 'Feb 25', customer: 'Frontier Airlines', qty: 1, price: 3250000 },
+      { date: 'Feb 8', customer: 'Southwest Airlines', qty: 1, price: 3180000 },
+      { date: 'Jan 22', customer: 'United Airlines', qty: 1, price: 3400000 },
+      { date: 'Jan 6', customer: 'Allegiant Air', qty: 1, price: 3100000 },
+      { date: 'Dec 18', customer: 'Delta Air Lines', qty: 1, price: 3320000 },
+    ],
+    suggestedPrice: 3250000, confidence: 75, inventory: 2,
+    aiResponse: `Carlos,\n\nUnderstood — AOG priority. We have 2 serviceable CFM56-7B24 engines available with green time remaining.\n\n  Part Number: CFM56-7B24\n  Condition: Serviceable\n  Quantity: 1\n  Unit Price: $3,250,000\n\nAvailable for immediate release. We can arrange logistics today.\n\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 6, company: 'Alaska Airlines', contact: 'Nina Volkov', email: 'nvolkov@alaskaair.com',
+    partNumber: '60-389310-1', description: 'Starter Generator (GE)', condition: 'Overhauled',
+    quantity: 2, source: 'ils', classification: 'quote_required', urgent: false,
+    received: '9:45 AM', aircraft: 'B737 MAX 9',
+    emailBody: `Good morning,\n\nAlaska Airlines requesting a quotation:\n\nP/N: 60-389310-1\nDesc: Starter Generator — GE Aviation\nCond: OH\nQty: 2\nA/C: 737 MAX 9\n\nPlease include 8130-3 with quote.\n\nNina Volkov\nAlaska Airlines MRO Procurement`,
+    priceHistory: [
+      { date: 'Feb 12', customer: 'Republic Airways', qty: 1, price: 18900 },
+      { date: 'Jan 30', customer: 'Southwest Airlines', qty: 2, price: 17500 },
+      { date: 'Jan 15', customer: 'SkyWest Airlines', qty: 1, price: 19200 },
+      { date: 'Dec 28', customer: 'Envoy Air', qty: 3, price: 17800 },
+    ],
+    suggestedPrice: 18350, confidence: 84, inventory: 5,
+    aiResponse: `Hi Nina,\n\nWe have 5 units of P/N 60-389310-1 (GE Starter Generator) in OH condition.\n\n  Part Number: 60-389310-1\n  Condition: Overhauled\n  Quantity: 2 ea.\n  Unit Price: $18,350\n  Total: $36,700\n\n8130-3 and full trace docs included. Lead time: 3 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 7, company: 'Frontier Airlines', contact: 'Amy Russell', email: 'arussell@flyfrontier.com',
+    partNumber: '501-1255-03', description: 'EGPWS Computer (Honeywell)', condition: 'Serviceable',
+    quantity: 2, source: 'email', classification: 'quote_required', urgent: false,
+    received: '10:30 AM', aircraft: 'A320neo',
+    emailBody: `Hi,\n\nPlease quote:\n\nP/N: 501-1255-03\nDesc: EGPWS Computer — Honeywell\nCond: SV\nQty: 2\nA/C: A320neo\n\nAmy Russell\nFrontier Airlines Purchasing`,
+    priceHistory: [
+      { date: 'Feb 19', customer: 'JetBlue Airways', qty: 1, price: 12800 },
+      { date: 'Feb 4', customer: 'Hawaiian Airlines', qty: 2, price: 12200 },
+      { date: 'Jan 18', customer: 'Mesa Airlines', qty: 1, price: 13100 },
+      { date: 'Jan 2', customer: 'GoJet Airlines', qty: 1, price: 12500 },
+    ],
+    suggestedPrice: 12650, confidence: 88, inventory: 7,
+    aiResponse: `Hi Amy,\n\nWe have 7 units of P/N 501-1255-03 (Honeywell EGPWS Computer) available, SV condition.\n\n  Part Number: 501-1255-03\n  Condition: Serviceable\n  Quantity: 2 ea.\n  Unit Price: $12,650\n  Total: $25,300\n\nLead time: 2 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 8, company: 'Republic Airways', contact: 'Dave Finch', email: 'dfinch@rjet.com',
+    partNumber: '60-47091-13', description: 'IDG — Integrated Drive Generator', condition: 'Overhauled',
+    quantity: 1, source: 'air_exchange', classification: 'quote_required', urgent: false,
+    received: '10:55 AM', aircraft: 'E175',
+    emailBody: `Velo Aviation,\n\nRequesting quote:\n\nP/N: 60-47091-13\nDesc: Integrated Drive Generator\nCond: OH\nQty: 1\nA/C: ERJ-175\n\nPlease include warranty terms.\n\nDave Finch\nRepublic Airways`,
+    priceHistory: [
+      { date: 'Feb 16', customer: 'SkyWest Airlines', qty: 1, price: 42000 },
+      { date: 'Feb 1', customer: 'Envoy Air', qty: 1, price: 44500 },
+      { date: 'Jan 20', customer: 'PSA Airlines', qty: 2, price: 41200 },
+      { date: 'Jan 4', customer: 'Mesa Airlines', qty: 1, price: 43800 },
+    ],
+    suggestedPrice: 42875, confidence: 85, inventory: 3,
+    aiResponse: `Hi Dave,\n\nWe have 3 units of P/N 60-47091-13 (IDG) in OH condition.\n\n  Part Number: 60-47091-13\n  Condition: Overhauled\n  Quantity: 1\n  Unit Price: $42,875\n\n24-month warranty included. Lead time: 3–5 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 9, company: 'Allegiant Air', contact: 'Lisa Grant', email: 'lgrant@allegiantair.com',
+    partNumber: '141300-1', description: 'Flap Actuator (Moog)', condition: 'As Removed',
+    quantity: 2, source: 'email', classification: 'quote_required', urgent: false,
+    received: '11:12 AM', aircraft: 'A319',
+    emailBody: `Hello Velo,\n\nQuote request:\n\nPart: 141300-1 — Flap Actuator (Moog)\nCondition: AR\nQty: 2\nA/C: A319-100\n\nNeed by end of month.\n\nLisa Grant\nAllegiant Air Procurement`,
+    priceHistory: [
+      { date: 'Feb 21', customer: 'Spirit Airlines', qty: 1, price: 8900 },
+      { date: 'Feb 7', customer: 'Frontier Airlines', qty: 2, price: 8400 },
+      { date: 'Jan 24', customer: 'JetBlue Airways', qty: 1, price: 9200 },
+      { date: 'Jan 10', customer: 'Delta Air Lines', qty: 3, price: 8600 },
+    ],
+    suggestedPrice: 8775, confidence: 91, inventory: 9,
+    aiResponse: `Hi Lisa,\n\nWe have 9 units of P/N 141300-1 (Moog Flap Actuator) available in AR condition.\n\n  Part Number: 141300-1\n  Condition: As Removed\n  Quantity: 2 ea.\n  Unit Price: $8,775\n  Total: $17,550\n\nLead time: 2 business days. Can meet your end-of-month deadline.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 10, company: 'Hawaiian Airlines', contact: 'Kai Nakamura', email: 'knakamura@hawaiianair.com',
+    partNumber: '2588396-201', description: 'Engine Fuel Pump (Parker)', condition: 'Serviceable',
+    quantity: 2, source: 'ils', classification: 'quote_required', urgent: false,
+    received: '11:38 AM', aircraft: 'A330-200',
+    emailBody: `Aloha Velo Aviation,\n\nKindly provide a quote:\n\nP/N: 2588396-201\nDesc: Engine Fuel Pump — Parker Aerospace\nCond: SV\nQty: 2\nA/C: A330-200\n\nMahalo,\nKai Nakamura\nHawaiian Airlines Technical Procurement`,
+    priceHistory: [
+      { date: 'Feb 14', customer: 'United Airlines', qty: 1, price: 27500 },
+      { date: 'Feb 2', customer: 'Delta Air Lines', qty: 2, price: 26800 },
+      { date: 'Jan 18', customer: 'American Airlines', qty: 1, price: 28200 },
+      { date: 'Jan 3', customer: 'Alaska Airlines', qty: 1, price: 27100 },
+    ],
+    suggestedPrice: 27400, confidence: 89, inventory: 4,
+    aiResponse: `Aloha Kai,\n\nWe have 4 units of P/N 2588396-201 (Parker Engine Fuel Pump) in SV condition.\n\n  Part Number: 2588396-201\n  Condition: Serviceable\n  Quantity: 2 ea.\n  Unit Price: $27,400\n  Total: $54,800\n\nLead time: 3–5 business days. Full trace documentation included.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 11, company: 'SkyWest Airlines', contact: 'Brian Lowe', email: 'blowe@skywest.com',
+    partNumber: '101-384500-3', description: 'Weather Radar Antenna (Collins)', condition: 'Overhauled',
+    quantity: 1, source: 'email', classification: 'quote_required', urgent: false,
+    received: '12:05 PM', aircraft: 'CRJ-700',
+    emailBody: `Velo Aviation,\n\nPlease quote:\n\nP/N: 101-384500-3\nDesc: Weather Radar Antenna — Collins Aerospace\nCond: OH\nQty: 1\nA/C: CRJ-700\n\nBrian Lowe\nSkyWest Airlines`,
+    priceHistory: [
+      { date: 'Feb 17', customer: 'Republic Airways', qty: 1, price: 15600 },
+      { date: 'Feb 5', customer: 'Envoy Air', qty: 1, price: 16200 },
+      { date: 'Jan 22', customer: 'GoJet Airlines', qty: 2, price: 15100 },
+      { date: 'Jan 8', customer: 'PSA Airlines', qty: 1, price: 15800 },
+    ],
+    suggestedPrice: 15675, confidence: 86, inventory: 2,
+    aiResponse: `Hi Brian,\n\nWe have 2 units of P/N 101-384500-3 (Collins Weather Radar Antenna) in OH condition.\n\n  Part Number: 101-384500-3\n  Condition: Overhauled\n  Quantity: 1\n  Unit Price: $15,675\n\nLead time: 2 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 12, company: 'Envoy Air', contact: 'Rachel Kim', email: 'rkim@envoyair.com',
+    partNumber: '54200-1', description: 'Nose Wheel Assembly', condition: 'Overhauled',
+    quantity: 2, source: 'air_exchange', classification: 'quote_required', urgent: false,
+    received: '12:22 PM', aircraft: 'E145',
+    emailBody: `Hi,\n\nEnvoy Air requests pricing:\n\nP/N: 54200-1\nDesc: Nose Wheel Assembly\nCond: OH\nQty: 2\nA/C: ERJ-145\n\nRachel Kim\nEnvoy Air Parts Procurement`,
+    priceHistory: [
+      { date: 'Feb 23', customer: 'Mesa Airlines', qty: 2, price: 6200 },
+      { date: 'Feb 10', customer: 'SkyWest Airlines', qty: 1, price: 6800 },
+      { date: 'Jan 27', customer: 'Republic Airways', qty: 3, price: 5900 },
+      { date: 'Jan 12', customer: 'GoJet Airlines', qty: 2, price: 6400 },
+    ],
+    suggestedPrice: 6325, confidence: 83, inventory: 8,
+    aiResponse: `Hi Rachel,\n\nWe have 8 units of P/N 54200-1 (Nose Wheel Assembly) in OH condition.\n\n  Part Number: 54200-1\n  Condition: Overhauled\n  Quantity: 2 ea.\n  Unit Price: $6,325\n  Total: $12,650\n\nLead time: 2 business days.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  // Auto Yes
+  {
+    id: 13, company: 'HAECO Americas', contact: 'Paul Wright', email: 'pwright@haeco.com',
+    partNumber: '65-51399-39', description: 'Hydraulic Pump (Eaton)', condition: 'OH',
+    quantity: 6, source: 'air_exchange', classification: 'auto_yes', urgent: false,
+    received: '7:30 AM', aircraft: 'B767',
+    emailBody: `Velo Aviation,\n\nPlease confirm availability for P/N 65-51399-39, Hydraulic Pump, OH condition, Qty 6, for B767.\n\nPaul Wright\nHAECO Americas`,
+    priceHistory: [], suggestedPrice: 0, confidence: 95, inventory: 12,
+    aiResponse: `Dear Paul,\n\nThank you for your inquiry regarding P/N 65-51399-39 (Eaton Hydraulic Pump).\n\nWe can confirm we have 12 units available in OH condition. Standard lead time is 3–5 business days from PO receipt.\n\nPlease let us know your requirements and we'll provide a formal quotation.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 14, company: 'ST Engineering', contact: 'Wei Lin', email: 'wlin@stengg.com',
+    partNumber: '2624886-1', description: 'Fuel Control Unit (Parker)', condition: 'SV',
+    quantity: 1, source: 'ils', classification: 'auto_yes', urgent: false,
+    received: '7:45 AM', aircraft: 'A350',
+    emailBody: `Hello Velo,\n\nDo you have P/N 2624886-1, Fuel Control Unit, SV, Qty 1 for A350?\n\nWei Lin\nST Engineering`,
+    priceHistory: [], suggestedPrice: 0, confidence: 93, inventory: 5,
+    aiResponse: `Dear Wei,\n\nThank you for your inquiry. We can confirm availability of P/N 2624886-1 (Parker Fuel Control Unit) in Serviceable condition. We have 5 units in stock.\n\nHappy to provide a formal quote upon request.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  // Auto No
+  {
+    id: 15, company: 'AAR Corp', contact: 'Frank DiMaggio', email: 'fdimaggio@aarcorp.com',
+    partNumber: '7004T71P11', description: 'Bleed Air Valve (Hamilton)', condition: 'AR',
+    quantity: 3, source: 'air_exchange', classification: 'auto_no', urgent: false,
+    received: '7:55 AM', aircraft: 'B737',
+    emailBody: `Looking for P/N 7004T71P11, Bleed Air Valve, AR condition, Qty 3.\n\nFrank DiMaggio\nAAR Corp`,
+    priceHistory: [], suggestedPrice: 0, confidence: 97, inventory: 0,
+    aiResponse: `Dear Frank,\n\nThank you for your inquiry regarding P/N 7004T71P11 (Bleed Air Valve). Unfortunately, this part is not currently available in our inventory.\n\nWe'd be happy to assist with sourcing or suggest alternatives. Please don't hesitate to reach out with other requirements.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+  {
+    id: 16, company: 'Aviall Services', contact: 'Heather Cole', email: 'hcole@aviall.com',
+    partNumber: '69-37516-4', description: 'Pitot Tube Assembly', condition: 'New',
+    quantity: 2, source: 'ils', classification: 'auto_no', urgent: false,
+    received: '8:05 AM', aircraft: 'CRJ-900',
+    emailBody: `Velo Aviation,\n\nRequesting pricing for P/N 69-37516-4, Pitot Tube Assembly, NE condition, Qty 2 for CRJ-900.\n\nHeather Cole\nAviall Services`,
+    priceHistory: [], suggestedPrice: 0, confidence: 95, inventory: 0,
+    aiResponse: `Dear Heather,\n\nThank you for your inquiry regarding P/N 69-37516-4 (Pitot Tube Assembly). We do not currently carry this part in New condition.\n\nFeel free to reach out if we can help with anything else.\n\nBest regards,\nVelo Aviation Sales Team`,
+  },
+];
+
+// ====================================================================
+// STATE
+// ====================================================================
+let state = {
+  filter: 'quote_required',
+  search: '',
+  expandedId: null,
+  processedIds: [],
+  focusedIndex: 0,
+  totalProcessed: 31,
+  totalEmails: 43,
+};
+
+// ====================================================================
+// HELPERS
+// ====================================================================
+function fmt(n) {
+  return n.toLocaleString('en-US');
+}
+
+function getFiltered() {
+  let items = rfqs.filter(r => !state.processedIds.includes(r.id));
+  if (state.filter !== 'all') items = items.filter(r => r.classification === state.filter);
+  if (state.search) {
+    const s = state.search.toLowerCase();
+    items = items.filter(r =>
+      r.company.toLowerCase().includes(s) || r.partNumber.toLowerCase().includes(s) ||
+      r.description.toLowerCase().includes(s) || r.contact.toLowerCase().includes(s)
+    );
+  }
+  return items.sort((a, b) => (b.urgent ? 1 : 0) - (a.urgent ? 1 : 0));
+}
+
+function buildSparkline(prices) {
+  if (prices.length < 2) return '';
+  const rev = [...prices].reverse();
+  const min = Math.min(...rev) * 0.97, max = Math.max(...rev) * 1.03, range = max - min || 1;
+  const w = 100, h = 28, pad = 3;
+  const pts = rev.map((p, i) => {
+    const x = pad + (i / (rev.length - 1)) * (w - pad * 2);
+    const y = pad + (1 - (p - min) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  });
+  const last = pts[pts.length - 1].split(',');
+  return `<svg viewBox="0 0 ${w} ${h}" class="w-24 h-7 inline-block align-middle">
+    <defs><linearGradient id="sfill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--info)" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="var(--info)" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="${pts.join(' ')} ${w-pad},${h-pad} ${pad},${h-pad}" fill="url(#sfill)"/>
+    <polyline points="${pts.join(' ')}" fill="none" stroke="var(--info)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${last[0]}" cy="${last[1]}" r="2" fill="var(--info)"/>
+  </svg>`;
+}
+
+// ====================================================================
+// RENDER
+// ====================================================================
+function render() {
+  const items = getFiltered();
+  const list = document.getElementById('card-list');
+  const empty = document.getElementById('empty-state');
+
+  if (items.length === 0) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  list.innerHTML = items.map((r, idx) => {
+    const isQuote = r.classification === 'quote_required';
+    const isAutoYes = r.classification === 'auto_yes';
+    const isExpanded = state.expandedId === r.id;
+    const isFocused = idx === state.focusedIndex;
+    const avgPrice = r.priceHistory.length > 0
+      ? r.priceHistory.reduce((s,p) => s + p.price, 0) / r.priceHistory.length : 0;
+
+    return `
+    <div class="card rounded-xl overflow-hidden fade-up ${isFocused ? 'ring-2' : ''}" data-id="${r.id}" data-idx="${idx}"
+         style="${isFocused ? 'ring-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px;' : ''}">
+
+      <!-- CARD HEADER -->
+      <div class="px-5 pt-4 pb-3">
+        <div class="flex items-start gap-3">
+          <!-- Left: Company + Part Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="source-badge source-${r.source === 'air_exchange' ? 'ax' : r.source}">${r.source === 'air_exchange' ? 'AX' : r.source === 'ils' ? 'ILS' : 'EMAIL'}</span>
+              <span class="text-sm font-700" style="color: var(--text-1);">${r.company}</span>
+              ${r.urgent ? '<span class="text-[0.6rem] font-700 px-2 py-0.5 rounded-full urgent-pulse" style="background: var(--danger-light); color: var(--danger);">AOG URGENT</span>' : ''}
+            </div>
+            <div class="flex items-center gap-2 text-xs" style="color: var(--text-2);">
+              <span class="font-mono font-600" style="color: var(--accent);">${r.partNumber}</span>
+              <span style="color: var(--border-strong);">·</span>
+              <span>${r.description}</span>
+              <span style="color: var(--border-strong);">·</span>
+              <span>Qty ${r.quantity}</span>
+              <span style="color: var(--border-strong);">·</span>
+              <span>${r.aircraft}</span>
+            </div>
+            <div class="text-[0.7rem] mt-0.5" style="color: var(--text-3);">${r.contact} · ${r.email}</div>
+          </div>
+          <!-- Right: Time + Badge -->
+          <div class="flex flex-col items-end gap-1 flex-shrink-0">
+            <span class="text-[0.7rem] font-mono" style="color: var(--text-3);">${r.received}</span>
+            <span class="class-badge class-${isQuote ? 'quote' : isAutoYes ? 'yes' : 'no'}">${isQuote ? 'QUOTE REQ' : isAutoYes ? 'AUTO YES' : 'AUTO NO'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI SUGGESTION BAND -->
+      <div class="px-5 py-3 border-t" style="background: ${isQuote ? 'var(--bg-suggestion)' : isAutoYes ? 'var(--bg-auto-yes)' : 'var(--bg-auto-no)'}; border-color: var(--border);">
+        ${isQuote ? `
+          <!-- QUOTE SUGGESTION -->
+          <div class="flex items-center gap-2 mb-2">
+            <i class="ph-fill ph-sparkle text-sm" style="color: var(--accent);"></i>
+            <span class="text-[0.7rem] font-700 uppercase tracking-wide" style="color: var(--accent);">AI Quote Suggestion</span>
+            <span class="text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}% confidence</span>
+            <span class="text-[0.65rem]" style="color: var(--text-3);">${r.inventory} in stock · 3-mo avg $${fmt(Math.round(avgPrice))}</span>
+            <span class="ml-auto">${buildSparkline(r.priceHistory.map(p => p.price))}</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <label class="text-[0.7rem] font-600" style="color: var(--text-2);">Unit Price</label>
+              <div class="relative">
+                <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-mono" style="color: var(--text-3);">$</span>
+                <input type="text" class="price-input" value="${fmt(r.suggestedPrice)}"
+                  oninput="updateTotal(${r.id}, this.value)" data-price-input="${r.id}">
+              </div>
+            </div>
+            <span class="text-sm" style="color: var(--text-3);">× ${r.quantity}</span>
+            <span class="text-sm" style="color: var(--text-3);">=</span>
+            <span class="text-base font-800 font-mono" style="color: var(--success);" data-total="${r.id}">$${fmt(r.suggestedPrice * r.quantity)}</span>
+          </div>
+        ` : `
+          <!-- AUTO RESPONSE SUGGESTION -->
+          <div class="flex items-center gap-2 mb-1.5">
+            <i class="ph-fill ph-robot text-sm" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};"></i>
+            <span class="text-[0.7rem] font-700 uppercase tracking-wide" style="color: ${isAutoYes ? 'var(--success)' : 'var(--danger)'};">
+              ${isAutoYes ? 'Auto Response — Availability Confirmed' : 'Auto Response — Not Available'}
+            </span>
+            <span class="text-[0.65rem] font-mono px-1.5 py-0.5 rounded" style="background: var(--bg-elevated); color: var(--text-3);">${r.confidence}% confidence</span>
+          </div>
+          <div class="text-xs leading-relaxed truncate" style="color: var(--text-2); max-width: 700px;">
+            "${r.aiResponse.split('\\n').filter(l => l.trim()).slice(1, 3).join(' ').substring(0, 160)}..."
+          </div>
+        `}
+      </div>
+
+      <!-- ACTION BAR -->
+      <div class="px-5 py-2.5 flex items-center gap-2 border-t" style="border-color: var(--border);">
+        ${isQuote ? `
+          <button onclick="approveRfq(${r.id})" class="btn btn-approve"><i class="ph-bold ph-check text-sm"></i> Approve & Send Quote</button>
+          <button onclick="declineRfq(${r.id})" class="btn btn-decline"><i class="ph ph-x text-sm"></i> Decline</button>
+        ` : `
+          <button onclick="approveRfq(${r.id})" class="btn btn-approve"><i class="ph-bold ph-paper-plane-right text-sm"></i> Send Response</button>
+          <button onclick="declineRfq(${r.id})" class="btn btn-decline"><i class="ph ph-x text-sm"></i> Don't Send</button>
+        `}
+        <button onclick="toggleExpand(${r.id})" class="btn btn-details">
+          <i class="ph ph-caret-${isExpanded ? 'up' : 'down'} text-sm"></i> ${isExpanded ? 'Hide' : 'View'} Details
+        </button>
+        <div class="flex-1"></div>
+        <span class="text-[0.65rem]" style="color: var(--text-3);"><kbd class="kbd">A</kbd> approve <kbd class="kbd ml-1">R</kbd> decline</span>
+      </div>
+
+      <!-- EXPANDABLE DETAILS -->
+      <div class="detail-expand ${isExpanded ? 'open' : ''}">
+        <div class="px-5 py-4 border-t" style="border-color: var(--border); background: var(--bg-elevated);">
+          <div class="grid ${isQuote ? 'grid-cols-2' : 'grid-cols-1'} gap-4">
+            <!-- Original Email -->
+            <div class="rounded-lg p-4" style="background: var(--bg-card); border: 1px solid var(--border);">
+              <div class="flex items-center gap-2 mb-2">
+                <i class="ph ph-envelope-simple text-sm" style="color: var(--text-3);"></i>
+                <span class="text-[0.7rem] font-700 uppercase tracking-wider" style="color: var(--text-3);">Original Email</span>
+              </div>
+              <pre class="text-xs leading-relaxed whitespace-pre-wrap font-sans" style="color: var(--text-2);">${r.emailBody}</pre>
+            </div>
+            ${isQuote ? `
+            <!-- Price History -->
+            <div>
+              <div class="rounded-lg p-4 mb-3" style="background: var(--bg-card); border: 1px solid var(--border);">
+                <div class="text-[0.7rem] font-700 uppercase tracking-wider mb-2" style="color: var(--text-3);">
+                  <i class="ph ph-chart-line-up text-xs"></i> Price History (90 Days)
+                </div>
+                <table class="w-full text-xs">
+                  <thead><tr style="border-bottom: 1px solid var(--border);">
+                    <th class="text-left py-1.5 font-500" style="color: var(--text-3);">Date</th>
+                    <th class="text-left py-1.5 font-500" style="color: var(--text-3);">Customer</th>
+                    <th class="text-right py-1.5 font-500" style="color: var(--text-3);">Qty</th>
+                    <th class="text-right py-1.5 font-500" style="color: var(--text-3);">Price</th>
+                  </tr></thead>
+                  <tbody>${r.priceHistory.map(p => `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <td class="py-1.5 font-mono" style="color: var(--text-3);">${p.date}</td>
+                      <td class="py-1.5" style="color: var(--text-2);">${p.customer}</td>
+                      <td class="py-1.5 text-right" style="color: var(--text-3);">${p.qty}</td>
+                      <td class="py-1.5 text-right font-mono font-600" style="color: var(--text-1);">$${fmt(p.price)}</td>
+                    </tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <!-- Full AI Response Preview -->
+              <div class="rounded-lg p-4" style="background: var(--bg-card); border: 1px solid var(--border);">
+                <div class="text-[0.7rem] font-700 uppercase tracking-wider mb-2" style="color: var(--text-3);">
+                  <i class="ph ph-envelope text-xs"></i> Email That Will Be Sent
+                </div>
+                <pre class="text-xs leading-relaxed whitespace-pre-wrap font-sans" style="color: var(--text-2);">${r.aiResponse}</pre>
+              </div>
+            </div>
+            ` : `
+            <!-- Full AI Response (non-quote) is shown in same column -->
+            <div class="rounded-lg p-4" style="background: var(--bg-card); border: 1px solid var(--border);">
+              <div class="text-[0.7rem] font-700 uppercase tracking-wider mb-2" style="color: var(--text-3);">
+                <i class="ph ph-envelope text-xs"></i> Email That Will Be Sent
+              </div>
+              <pre class="text-xs leading-relaxed whitespace-pre-wrap font-sans" style="color: var(--text-2);">${r.aiResponse}</pre>
+            </div>
+            `}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ====================================================================
+// ACTIONS
+// ====================================================================
+function approveRfq(id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  const r = rfqs.find(x => x.id === id);
+  if (card) card.classList.add('card-out');
+  setTimeout(() => {
+    state.processedIds.push(id);
+    state.totalProcessed++;
+    if (state.expandedId === id) state.expandedId = null;
+    updateStats();
+    render();
+    showToast('approve', `${r.classification === 'quote_required' ? 'Quote' : 'Response'} sent to ${r.company}`);
+  }, 280);
+}
+
+function declineRfq(id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  const r = rfqs.find(x => x.id === id);
+  if (card) card.classList.add('card-out');
+  setTimeout(() => {
+    state.processedIds.push(id);
+    state.totalProcessed++;
+    if (state.expandedId === id) state.expandedId = null;
+    updateStats();
+    render();
+    showToast('decline', `Declined ${r.company} — ${r.partNumber}`);
+  }, 280);
+}
+
+function toggleExpand(id) {
+  state.expandedId = state.expandedId === id ? null : id;
+  render();
+}
+
+function updateTotal(id, val) {
+  const r = rfqs.find(x => x.id === id);
+  const price = parseFloat(val.replace(/,/g, '')) || 0;
+  const totalEl = document.querySelector(`[data-total="${id}"]`);
+  if (totalEl) totalEl.textContent = '$' + fmt(Math.round(price * r.quantity));
+}
+
+function setFilter(f) {
+  state.filter = f;
+  state.expandedId = null;
+  state.focusedIndex = 0;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  render();
+}
+
+function handleSearch(val) {
+  state.search = val;
+  state.focusedIndex = 0;
+  render();
+}
+
+function updateStats() {
+  const pending = rfqs.filter(r => r.classification === 'quote_required' && !state.processedIds.includes(r.id)).length;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-sent').textContent = state.totalProcessed;
+  document.getElementById('fcount-quote').textContent = pending;
+
+  const remaining = rfqs.filter(r => !state.processedIds.includes(r.id)).length;
+  const total = state.totalEmails;
+  const processed = total - remaining;
+  document.getElementById('progress-label').textContent = `${remaining} emails remaining`;
+  document.getElementById('progress-count').textContent = `${processed}/${total} processed`;
+  document.getElementById('progress-bar').style.width = `${(processed / total) * 100}%`;
+  document.getElementById('queue-badge') && (document.getElementById('queue-badge').textContent = pending);
+}
+
+function showToast(type, msg) {
+  const t = document.getElementById('toast');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<i class="ph-bold ${type === 'approve' ? 'ph-check-circle' : 'ph-x-circle'} mr-2"></i>${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+}
+
+// ====================================================================
+// KEYBOARD SHORTCUTS
+// ====================================================================
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    if (e.key === 'Escape') e.target.blur();
+    return;
+  }
+  const items = getFiltered();
+  switch(e.key.toLowerCase()) {
+    case 'j': case 'arrowdown':
+      e.preventDefault();
+      state.focusedIndex = Math.min(state.focusedIndex + 1, items.length - 1);
+      render();
+      document.querySelector(`[data-idx="${state.focusedIndex}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      break;
+    case 'k': case 'arrowup':
+      e.preventDefault();
+      state.focusedIndex = Math.max(state.focusedIndex - 1, 0);
+      render();
+      document.querySelector(`[data-idx="${state.focusedIndex}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      break;
+    case 'a':
+      if (items[state.focusedIndex]) approveRfq(items[state.focusedIndex].id);
+      break;
+    case 'r':
+      if (items[state.focusedIndex]) declineRfq(items[state.focusedIndex].id);
+      break;
+    case 'enter':
+      if (items[state.focusedIndex]) toggleExpand(items[state.focusedIndex].id);
+      break;
+    case 'p':
+      if (items[state.focusedIndex]) {
+        const inp = document.querySelector(`[data-price-input="${items[state.focusedIndex].id}"]`);
+        if (inp) { inp.focus(); inp.select(); }
+      }
+      break;
+  }
+});
+
+// ====================================================================
+// INIT
+// ====================================================================
+render();
+updateStats();
+</script>
+
+</body>
+</html>
